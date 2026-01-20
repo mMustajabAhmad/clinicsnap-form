@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClinicSnap</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #74ABE2, #5563DE);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .logo-container {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .logo {
+        max-width: 250px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+
+    form label {
+        display: block;
+        margin-top: 1rem;
+        font-weight: 600;
+    }
+
+    form input, form select, form textarea, form button {
+        width: 100%;
+        padding: 0.8rem;
+        margin-top: 0.3rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    form textarea {
+        resize: none;
+        height: 80px;
+    }
+
+    form button {
+        background: #5563DE;
+        color: white;
+        border: none;
+        margin-top: 1.5rem;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    form button:hover {
+        background: #3c4ab7;
+    }
+
+    .warning {
+        color: red;
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
+    }
+
+    .input-warning {
+        border-color: red !important;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Logo -->
+    <div class="logo-container">
+        <img src="logo.png" alt="My Logo" class="logo">
+    </div>
+
+    <h1>Data Entry Form</h1>
+
+    <form id="dataForm">
+        <label>Patient ID</label>
+        <input type="text" name="patientId" required>
+
+        <label>Service</label>
+        <select name="service" id="serviceSelect" required>
+            <option value="">-- Select Service --</option>
+            <option value="120">DOT Phys: $120</option>
+            <option value="70">School Phys: $70 (per person)</option>
+            <option value="70">Sports Phys: $70 (per person)</option>
+            <option value="440">Immigration Phys: $440 with labs no vaccines</option>
+            <option value="225">Class G Firearm: $225</option>
+            <option value="15">Mononucleosis: $15</option>
+            <option value="25">Ondansetron (4mg/2ml): $25</option>
+            <option value="12">Ketorolac (30mg/ml): $12</option>
+            <option value="15">Vit B12: $15</option>
+            <option value="96">IV Fluids (NS): $96</option>
+            <option value="91">IV meds: $91</option>
+            <option value="135">Joint Injection: $135</option>
+            <option value="5">Triamcinolone: $5</option>
+            <option value="250">Semaglutide (1ml): $250</option>
+            <option value="300">Semaglutide (5ml): $300</option>
+            <option value="460">Tirzepatide (5ml): $460</option>
+            <option value="60">Semaglutide: $60 per week</option>
+            <option value="50">ESA (Emotional Support Animal) Letter: $50</option>
+            <option value="295">Cosmetic Pre-Op Clearance (EKG, Paperwork): $295</option>
+            <option value="100">Travel Rapid: $100</option>
+            <option value="65">FL Shots Upload: $65</option>
+            <option value="500">ASL Form: $500</option>
+            <option value="50">Vaccine Transfer: $50</option>
+        </select>
+
+        <label>Amount</label>
+        <input type="number" name="amount" id="amountInput" required>
+        <div id="priceWarning" class="warning" style="display:none;">
+            ⚠ The entered amount does not match the default service price.
+        </div>
+
+        <label>Payment Date</label>
+        <input type="date" name="paymentDate" required>
+
+        <label>Payment Method</label>
+        <select name="paymentMethod" required>
+            <option value="">-- Select Payment Method --</option>
+            <option value="Cash">Cash</option>
+            <option value="Zelle">Zelle</option>
+        </select>
+
+        <label>Note</label>
+        <textarea name="note"></textarea>
+
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<script>
+const serviceSelect = document.getElementById("serviceSelect");
+const amountInput = document.getElementById("amountInput");
+const priceWarning = document.getElementById("priceWarning");
+
+serviceSelect.addEventListener("change", function() {
+    const defaultPrice = this.value;
+    if (defaultPrice) {
+        amountInput.value = defaultPrice;
+        priceWarning.style.display = "none";
+        amountInput.classList.remove("input-warning");
+    }
+});
+
+amountInput.addEventListener("input", function() {
+    const selectedPrice = serviceSelect.value;
+    if (selectedPrice && this.value != selectedPrice) {
+        priceWarning.style.display = "block";
+        amountInput.classList.add("input-warning");
+    } else {
+        priceWarning.style.display = "none";
+        amountInput.classList.remove("input-warning");
+    }
+});
+
+document.getElementById("dataForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const formData = {
+        patientId: this.patientId.value,
+        service: serviceSelect.options[serviceSelect.selectedIndex].text,
+        amount: this.amount.value,
+        paymentDate: this.paymentDate.value,
+        paymentMethod: this.paymentMethod.value,
+        note: this.note.value,
+        timestamp: new Date().toISOString()
+    };
+
+    fetch("https://script.google.com/macros/s/AKfycbw_IWduuK0ez52PxSm-WAmAYQGMYEC8rZUE8w576Ah1R8dbSzUI9qxNGCVL2ZeiDeaKBA/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+    });
+
+    alert("Data sent!");
+    this.reset();
+    priceWarning.style.display = "none";
+    amountInput.classList.remove("input-warning");
+});
+</script>
+
+</body>
+</html>
